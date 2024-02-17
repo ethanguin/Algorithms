@@ -1,31 +1,38 @@
 #!/usr/bin/python3
 
 class PQArray:
-    def __init__(self):
-        self.queue = []
+    def __init__(self, max_size, fill_item):
+        self.queue = [fill_item] * max_size
+        self.length = max_size
+        if fill_item is None:
+            self.length = 0
 
     def insert(self, index, key):
-        self.queue.append((index, key))
+        self.queue[index] = key
+        self.length += 1
 
     def decreaseKey(self, index, key):
-        self.queue[index]
+        self.queue[index] = key
 
     def deleteMin(self):
         if self.isEmpty():
             return None
         min_index = 0
-        min_priority = self.queue[0][1]
-        for i in range(1, len(self.queue)):
-            if self.queue[i][1] < min_priority:
-                min_priority = self.queue[i][1]
+        for i in range(len(self.queue)):
+            if self.queue[min_index] is None:
                 min_index = i
-        return self.queue.pop(min_index)[0]
+            if self.queue[i] is None:
+                continue
+            else:
+                if self.queue[i] < self.queue[min_index]:
+                    min_index = i
+
+        self.length -= 1
+        self.queue[min_index] = None
+        return min_index
 
     def isEmpty(self):
-        if len(self.queue) == 0:
-            return True
-        else:
-            return False
+        return self.length == 0
 
 
 class CS312GraphEdge:
@@ -79,13 +86,10 @@ class CS312Graph:
         # Initialize distances array with infinity for all nodes and previous array with null
         num_nodes = len(self.nodes)
         distances = [float('inf')] * num_nodes
-        previous = [(None, None)] * num_nodes
+        pq = PQArray(num_nodes, float('inf'))
+        prev = [None] * num_nodes
         distances[start_node_id] = 0
-
-        # Initialize priority queue with all the nodes and their distances
-        pq = PQArray()
-        for node in self.nodes:
-            pq.insert(node.node_id, distances[node.node_id])
+        pq.decreaseKey(start_node_id, 0)
 
         while not pq.isEmpty():
             # Pop the node with the smallest distance from the priority queue
@@ -99,21 +103,24 @@ class CS312Graph:
                 # If a shorter path is found, update distance and previous node
                 if new_distance < distances[neighbor_id]:
                     distances[neighbor_id] = new_distance
-                    previous[neighbor_id] = (current_node_id, edge.length)
-                    pq.insert(neighbor_id, new_distance)
+                    prev[neighbor_id] = edge
+                    pq.decreaseKey(neighbor_id, new_distance)
 
         # Construct the shortest paths from start node to each node
-        shortest_paths = {}
+        shortest_paths = []
         for node_id, distance in enumerate(distances):
             path = []
+            if distance is float('inf'):
+                shortest_paths.append(path)
+                continue
+
             current_node_id = node_id
             while current_node_id is not None:
-                if previous[current_node_id][0] is not None:  # Check if valid tuple
-                    path.insert(0, (current_node_id, previous[current_node_id][1]))  # Include edge length
-                    current_node_id = previous[current_node_id][0]
+                if prev[current_node_id] is not None:  # Check if valid previous node
+                    path.append(prev[current_node_id])
+                    current_node_id = prev[current_node_id].src.node_id
                 else:
-                    path.insert(0, (start_node_id, previous[current_node_id][1]))
                     break
-            shortest_paths[node_id] = (distance, path)
+            shortest_paths.append(path)
 
         return shortest_paths

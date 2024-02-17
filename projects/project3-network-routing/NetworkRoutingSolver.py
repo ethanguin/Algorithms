@@ -22,16 +22,11 @@ class NetworkRoutingSolver:
         #       INSTEAD OF THE DUMMY SET OF EDGES BELOW
         #       IT'S JUST AN EXAMPLE OF THE FORMAT YOU'LL
         #       NEED TO USE
-        path = self.shortest_paths[destIndex][1]  # Get the list of (node_id, edge_length) tuples
+        path = self.shortest_paths[destIndex]  # Get the list of (node_id, edge_length) tuples
         path_edges = []
         total_length = 0
-        for i in range(len(path) - 1):
-            node_id, edge_length = path[i]  # Unpack the tuple
-            next_node_id, next_edge_length = path[i + 1]  # Unpack the next tuple
-            node = self.network.nodes[node_id]
-            next_node = self.network.nodes[next_node_id]
-            edge = CS312GraphEdge(node, next_node, next_edge_length)
-            path_edges.append((node.loc, next_node.loc, '{:.0f}'.format(edge.length)))
+        for edge in path:
+            path_edges.append((edge.src.loc, edge.dest.loc, '{:.0f}'.format(edge.length)))
             total_length += edge.length
         return {'cost': total_length, 'path': path_edges}
 
