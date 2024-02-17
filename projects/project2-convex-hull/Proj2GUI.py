@@ -121,6 +121,9 @@ class Proj2GUI( QMainWindow ):
 		# start the GUI
 		self.initUI()
 
+	def createPoints(self):
+		return [QPointF(-1, -1), QPointF(0, .1), QPointF(.2, .3), QPointF(.3, .3), QPointF(.4, .10), QPointF(.45, .1), QPointF(.25, .2), QPointF(1.0, .1), QPointF(.1, .11)]
+
 	# Generator for new sets of points that represent hull finding problem instances
 	def newPoints(self):
 
@@ -182,6 +185,7 @@ class Proj2GUI( QMainWindow ):
 			self.view.clearPoints()
 			self.view.clearLines()
 		self.points = self.newPoints()
+		# self.points = self.createPoints()
 		self.view.addPoints( self.points, (0,0,0) )
 		self.solveButton.setEnabled(True)
 		self.view.update()
