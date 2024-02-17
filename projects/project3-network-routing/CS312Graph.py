@@ -112,6 +112,7 @@ class CS312Graph:
                     path.insert(0, (current_node_id, previous[current_node_id][1]))  # Include edge length
                     current_node_id = previous[current_node_id][0]
                 else:
+                    path.insert(0, (start_node_id, previous[current_node_id][1]))
                     break
             shortest_paths[node_id] = (distance, path)
 
