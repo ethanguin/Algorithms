@@ -1,5 +1,85 @@
 #!/usr/bin/python3
 
+class PQHeap:
+    def __init__(self):
+        self.heap = []
+        self.index_map = {}
+
+    @staticmethod
+    def parent(i):
+        return (i - 1) // 2
+
+    @staticmethod
+    def leftChild(i):
+        return 2 * i + 1
+
+    @staticmethod
+    def rightChild(i):
+        return 2 * i + 2
+
+    def swap(self, i, j):
+        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
+        self.index_map[self.heap[i][1]] = i
+        self.index_map[self.heap[j][1]] = j
+
+    def bubbleUp(self, i):
+        while i > 0 and self.heap[self.parent(i)][0] > self.heap[i][0]:
+            self.swap(i, self.parent(i))
+            i = self.parent(i)
+
+    def bubbleDown(self, i):
+        min_index = i
+        left = self.leftChild(i)
+        right = self.rightChild(i)
+        n = len(self.heap)
+
+        if left < n and self.heap[left][0] < self.heap[min_index][0]:
+            min_index = left
+
+        if right < n and self.heap[right][0] < self.heap[min_index][0]:
+            min_index = right
+
+        if i != min_index:
+            self.swap(i, min_index)
+            self.bubbleDown(min_index)
+
+    def insert(self, value, priority):
+        self.heap.append((priority, value))
+        index = len(self.heap) - 1
+        self.index_map[value] = index
+        self.bubbleUp(index)
+
+    def decreaseKey(self, value, new_priority):
+        if value in self.index_map:
+            index = self.index_map[value]
+            old_priority, value = self.heap[index]
+            self.heap[index] = (new_priority, value)
+            if new_priority < old_priority:
+                self.bubbleUp(index)
+            else:
+                self.bubbleDown(index)
+
+    def deleteMin(self):
+        if self.isEmpty():
+            return None
+
+        min_value = self.heap[0][1]
+        del self.index_map[min_value]
+
+        if len(self.heap) > 1:
+            last_element = self.heap.pop()
+            self.heap[0] = last_element
+            self.index_map[last_element[1]] = 0
+            self.bubbleDown(0)
+        else:
+            self.heap.pop()
+
+        return min_value
+
+    def isEmpty(self):
+        return len(self.heap) == 0
+
+
 class PQArray:
     def __init__(self, max_size, fill_item):
         self.queue = [fill_item] * max_size
@@ -82,11 +162,17 @@ class CS312Graph:
     def getNodes(self):
         return self.nodes
 
-    def dijkstraArray(self, start_node_id):
+    def dijkstra(self, start_node_id, useHeap):
         # Initialize distances array with infinity for all nodes and previous array with null
         num_nodes = len(self.nodes)
         distances = [float('inf')] * num_nodes
-        pq = PQArray(num_nodes, float('inf'))
+        if not useHeap:
+            pq = PQArray(num_nodes, float('inf'))
+        else:
+            pq = PQHeap()
+            for node in self.nodes:
+                pq.insert(node.node_id, float('inf'))
+
         prev = [None] * num_nodes
         distances[start_node_id] = 0
         pq.decreaseKey(start_node_id, 0)

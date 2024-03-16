@@ -36,9 +36,6 @@ class NetworkRoutingSolver:
         # TODO: RUN DIJKSTRA'S TO DETERMINE SHORTEST PATHS.
         #       ALSO, STORE THE RESULTS FOR THE SUBSEQUENT
         #       CALL TO getShortestPath(dest_index)
-        if use_heap is False:
-            self.shortest_paths = self.network.dijkstraArray(srcIndex)
-        else:
-            self.shortest_paths = self.network.dijkstraArray(srcIndex)
+        self.shortest_paths = self.network.dijkstra(srcIndex, use_heap)
         t2 = time.time()
         return t2 - t1
